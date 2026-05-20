@@ -1,0 +1,8 @@
+---
+- hosts: all
+  become: true
+  gather_facts: yes
+  name: preparing all server
+  roles:
+  # preparing server and hardening
+    - { role: preparing_server, become: True, tag: hardening }

@@ -1,0 +1,16 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  Inventory — on-prem K8s cluster (5 nodes)
+#  Management VLAN: 172.23.34.0/24   (ansible_host = mgmt IP used by Ansible)
+#  Cluster VLAN:    10.10.10.0/24    (trusted in iptables; used later by Kubespray)
+# ─────────────────────────────────────────────────────────────────────────────
+all:
+  vars:
+    ansible_user: root
+    ansible_port: 22        # change to your real SSH port if non-default
+
+  hosts:
+    master-1: { ansible_host: 172.23.34.11 }
+    master-2: { ansible_host: 172.23.34.12 }
+    master-3: { ansible_host: 172.23.34.13 }
+    worker-1: { ansible_host: 172.23.34.21 }
+    worker-2: { ansible_host: 172.23.34.22 }

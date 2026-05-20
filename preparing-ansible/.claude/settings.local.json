@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \"import yaml; d=yaml.safe_load\\(open\\('inventories/group_vars/all/preparing.yaml'\\)\\); import json; print\\(json.dumps\\(d['iptables'], indent=2\\)\\)\")",
+      "Bash(sed -n '/^iptables:/,/^# fail2ban/p' inventories/group_vars/all/preparing.yaml)",
+      "Bash(grep -v \"^$\")"
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+---
+- import_tasks: packagemgmt.yml   # APT hardening config must come first
+- import_tasks: packages.yaml     # System update + security package install
+- import_tasks: packages.yml      # Security package install (debian/ubuntu lists) + blocklist purge
+- import_tasks: compilers.yml
+- import_tasks: limits.yml
+- import_tasks: hardening.yaml
+- import_tasks: account_settings.yml
+- import_tasks: cron.yml
+- import_tasks: hosts.yml
+- import_tasks: auditd.yml
+- import_tasks: disablefs.yml     # Covers cramfs/hfs/jffs2/squashfs/udf/vfat
+- import_tasks: disablemod.yml    # Covers bluetooth/usb/misc modules
+- import_tasks: disablenet.yml    # Covers atm/dccp/sctp/rds/tipc
+# kernel_modules.yml removed — duplicate of disablefs + disablenet combined
+- import_tasks: fstab.yml
+- import_tasks: resolvedconf.yml
+- import_tasks: password.yml
+- import_tasks: journalconf.yml
+- import_tasks: mount.yml
+- import_tasks: tuning.yaml
+- import_tasks: lynis.yaml
+
+# Kubespray / Kubernetes node prerequisites (modules, sysctls, swap off)
+- import_tasks: kubespray_prep.yml

@@ -1,0 +1,72 @@
+---
+# Disable UFW — iptables-persistent is used instead for explicit rule control
+- name: Stop and disable ufw
+  ansible.builtin.service:
+    name: ufw
+    state: stopped
+    enabled: no
+
+# Postfix is installed as a dependency by some security packages but is not needed
+- name: Stop and disable postfix
+  ansible.builtin.service:
+    name: postfix
+    state: stopped
+    enabled: no
+  ignore_errors: yes
+
+# Terminate idle sessions automatically (TMOUT in /etc/profile.d)
+- name: Deploy session timeout configuration
+  template:
+    src: timout.j2
+    dest: /etc/profile.d/timout-settings.sh
+    owner: root
+    group: root
+    mode: 0644
+
+# Display a legal/warning banner before SSH login
+- name: Deploy SSH login banner
+  copy:
+    src: ssh_banner
+    dest: /etc/issue
+    owner: root
+    group: root
+    mode: 0644
+
+# Harden SSH daemon: disable password auth, restrict ciphers/MACs/KexAlgorithms
+- name: Deploy hardened sshd_config
+  template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: 0600
+    validate: /usr/sbin/sshd -t -f %s
+  notify: Restart ssh
+
+# Build iptables rules from template and persist them.
+# The cluster VLAN is fully trusted via iptables.trusted_Range so kube-proxy,
+# CNI, etcd, kubelet, NodePort and pod traffic all work without per-port rules.
+- name: Deploy iptables rules
+  template:
+    src: iptables.j2
+    dest: /etc/iptables/rules.v4
+    owner: root
+    group: root
+    mode: 0640
+
+- name: Restore iptables state from rules file
+  community.general.iptables_state:
+    state: restored
+    path: /etc/iptables/rules.v4
+    noflush: true
+  notify: Restart iptables
+
+# Fail2ban protects SSH and other services from brute-force attacks
+- name: Deploy fail2ban configuration
+  template:
+    src: fial2ban.j2
+    dest: /etc/fail2ban/jail.local
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart fail2ban
